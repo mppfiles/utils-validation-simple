@@ -633,13 +633,13 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator largo(Integer v2) {
-        procesado = true;
+        fueProcesado = true;
 
-        if (errores.get(campo_actual) != null || v2 == null || get(campo_actual) == null) {
+        if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
         }
-        if (getString(campo_actual).length() != v2) {
-            errores.put(campo_actual, "El valor de '" + campo_actual + "' debe ser de " + v2 + " caracteres de largo");
+        if (getString(campoActual).length() != v2) {
+            errores.put(campoActual, "El valor de '" + campoActual + "' debe ser de " + v2 + " caracteres de largo");
         }
 
         return this;
@@ -794,14 +794,14 @@ public class ParamValidator {
      * @return 
      */
     public ParamValidator cumpleCondicion(boolean condicion) {
-        procesado = true;
+        fueProcesado = true;
 
-        if (errores.get(campo_actual) != null || get(campo_actual) == null) {
+        if (errores.get(campoActual) != null || get(campoActual) == null) {
             return this;
         }
 
         if (false == condicion) {
-            errores.put(campo_actual, "No se cumple la condición requerida para " + campo_actual);
+            errores.put(campoActual, "No se cumple la condición requerida para " + campoActual);
         }
 
         return this;
