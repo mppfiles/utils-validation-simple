@@ -767,6 +767,25 @@ public class ParamValidator {
 
         return this;
     }
+    
+    /**
+     * Valida que la expresión booleana sea verdadera.
+     * @param condicion
+     * @return 
+     */
+    public ParamValidator cumpleCondicion(boolean condicion) {
+        procesado = true;
+
+        if (errores.get(campo_actual) != null || get(campo_actual) == null) {
+            return this;
+        }
+
+        if (false == condicion) {
+            errores.put(campo_actual, "No se cumple la condición requerida para " + campo_actual);
+        }
+
+        return this;
+    }
 
     /**
      * Reescribe el mensaje de error (si hubiere) para el parámetro a validar.
