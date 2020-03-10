@@ -625,6 +625,26 @@ public class ParamValidator {
 
         return this;
     }
+    
+    /**
+     * Valida que el largo del campo sea exactamente el especificado.
+     *
+     * @param v2
+     * @return
+     */
+    public ParamValidator largo(Integer v2) {
+        procesado = true;
+
+        if (errores.get(campo_actual) != null || v2 == null || get(campo_actual) == null) {
+            return this;
+        }
+        if (getString(campo_actual).length() != v2) {
+            errores.put(campo_actual, "El valor de '" + campo_actual + "' debe ser de " + v2 + " caracteres de largo");
+        }
+
+        return this;
+    }
+
 
     /**
      * Valida que el valor del parámetro no sea menor al número especificado.
