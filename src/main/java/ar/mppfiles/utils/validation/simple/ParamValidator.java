@@ -369,7 +369,7 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator sinEspacios() {
-        return cumpleRegex("[^\\s]");
+        return cumpleRegex("[^\\s]+");
     }
 
     /**
@@ -378,7 +378,7 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator sinNumeros() {
-        return cumpleRegex("[^\\d]");
+        return cumpleRegex("[^\\d]+");
     }
 
     /**
