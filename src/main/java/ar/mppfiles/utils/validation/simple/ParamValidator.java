@@ -157,6 +157,15 @@ public class ParamValidator {
     public String getError(String param_name) {
         return (String) errores.get(param_name);
     }
+    
+    /**
+     * Devuelve si el parámetro especificado contiene algún error.
+     * @param param_name
+     * @return 
+     */
+    public boolean tieneError(String param_name) {
+        return errores.containsKey(param_name);
+    }
 
     /**
      * Ejecuta las validaciones definidas en una clase de validación. No lanza
@@ -647,7 +656,7 @@ public class ParamValidator {
 
 
     /**
-     * Valida que el valor del parámetro no sea menor al número especificado.
+     * Valida que el valor del parámetro no sea menor al número especificado (Integer).
      *
      * @param v2
      * @return
@@ -672,7 +681,7 @@ public class ParamValidator {
     }
 
     /**
-     * Valida que el valor del parámetro no exceda al número especificado.
+     * Valida que el valor del parámetro no exceda al número especificado (BigDecimal).
      *
      * @param v2
      * @return
@@ -686,6 +695,56 @@ public class ParamValidator {
         try {
             Integer v1 = getInteger(campoActual);
             if (v1 > v2) {
+                errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser mayor que " + v2);
+            }
+        } catch (NumberFormatException ex) {
+            logger.error("Error al validar: ", ex);
+            errores.put(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
+        }
+
+        return this;
+    }
+    
+    /**
+     * Valida que el valor del parámetro no sea menor al número especificado (BigDecimal).
+     *
+     * @param v2
+     * @return
+     */
+    public ParamValidator min(BigDecimal v2) {
+        fueProcesado = true;
+
+        if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
+            return this;
+        }
+        try {
+            BigDecimal v1 = getBigDecimal(campoActual);
+            if (v1.compareTo(v2) < 0) {
+                errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser menor que " + v2);
+            }
+        } catch (NumberFormatException ex) {
+            logger.error("Error al validar: ", ex);
+            errores.put(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
+        }
+
+        return this;
+    }
+
+    /**
+     * Valida que el valor del parámetro no exceda al número especificado (Integer).
+     *
+     * @param v2
+     * @return
+     */
+    public ParamValidator max(BigDecimal v2) {
+        fueProcesado = true;
+
+        if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
+            return this;
+        }
+        try {
+            BigDecimal v1 = getBigDecimal(campoActual);
+            if (v1.compareTo(v2) > 0) {
                 errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser mayor que " + v2);
             }
         } catch (NumberFormatException ex) {
