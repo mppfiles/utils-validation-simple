@@ -399,6 +399,16 @@ public class ParamValidator {
     public ParamValidator letrasConEspaciosYNumeros() {
         return cumpleRegex("[0-9A-Za-zñÑáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜ' ]+");
     }
+    
+    /**
+     * Valida que el valor tenga letras o números, incluyendo acentos,
+     * eñes y apóstrofe. No incluye ningún otro signo de puntuación.
+     *
+     * @return
+     */
+    public ParamValidator letrasConNumeros() {
+        return cumpleRegex("[0-9A-Za-zñÑáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜ']+");
+    }
 
     /**
      * Valida que el valor tenga letras o espacios, teniend en cuenta acentos,
