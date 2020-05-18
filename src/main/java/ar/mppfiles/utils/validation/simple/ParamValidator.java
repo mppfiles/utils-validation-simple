@@ -144,7 +144,7 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator setError(String param_name, String message) {
-	procesado = true;
+	fueProcesado = true;
         errores.put(param_name, message);
         return this;
     }
