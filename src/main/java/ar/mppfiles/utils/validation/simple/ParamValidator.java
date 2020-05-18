@@ -144,6 +144,7 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator setError(String param_name, String message) {
+	procesado = true;
         errores.put(param_name, message);
         return this;
     }
@@ -182,7 +183,7 @@ public class ParamValidator {
             throw ex;
         } catch (Exception ex) {
             if (!(ex instanceof ParamValidationException)) {
-                errores.put("global", "Ha ocurrido un error general. Por favor reintente más tarde.");
+                setError("global", "Ha ocurrido un error general. Por favor reintente más tarde.");
                 logger.error("Error al validar: ", ex);
 
                 throw new ParamValidationException(this);
@@ -270,7 +271,7 @@ public class ParamValidator {
         try {
             theDate = new SimpleDateFormat("yyyy-MM-dd").parse(getString(param_name));
         } catch (ParseException ex) {
-            errores.put(param_name, "El parámetro '" + param_name + "' no es una fecha válida.");
+            setError(param_name, "El parámetro '" + param_name + "' no es una fecha válida.");
         }
 
         return theDate;
@@ -305,7 +306,7 @@ public class ParamValidator {
         try {
             hora = new SimpleDateFormat("HH:mm:ss").parse(raw);
         } catch (ParseException ex) {
-            errores.put(campoActual, "El parámetro '" + campoActual + "' no es una hora válida.");
+            setError(campoActual, "El parámetro '" + campoActual + "' no es una hora válida.");
         }
         return hora;
     }
@@ -366,7 +367,7 @@ public class ParamValidator {
             return this;
         }
         if (isEmpty(campoActual)) {
-            errores.put(campoActual, "Debe ingresar un valor para '" + campoActual + "'");
+            setError(campoActual, "Debe ingresar un valor para '" + campoActual + "'");
         }
 
         return this;
@@ -459,7 +460,7 @@ public class ParamValidator {
         pattern = "^" + pattern + "$";
 
         if (!Pattern.matches(pattern, getString(campoActual))) {
-            errores.put(campoActual, "El valor de '" + campoActual + "' contiene caracteres no válidos");
+            setError(campoActual, "El valor de '" + campoActual + "' contiene caracteres no válidos");
         }
 
         return this;
@@ -481,7 +482,7 @@ public class ParamValidator {
         try {
             params.put(campoActual, getInteger(campoActual));
         } catch (NumberFormatException e) {
-            errores.put(campoActual, "El valor de '" + campoActual + "' no es un número válido");
+            setError(campoActual, "El valor de '" + campoActual + "' no es un número válido");
         }
 
         return this;
@@ -504,7 +505,7 @@ public class ParamValidator {
         try {
             params.put(campoActual, getBigDecimal(campoActual));
         } catch (NumberFormatException e) {
-            errores.put(campoActual, "El valor de '" + campoActual + "' no es un número válido");
+            setError(campoActual, "El valor de '" + campoActual + "' no es un número válido");
         }
 
         return this;
@@ -579,7 +580,7 @@ public class ParamValidator {
         }
 
         if (!this.getString(campoActual).equals(val.toString())) {
-            errores.put(campoActual, "El valor de '" + campoActual + "' debería ser igual a '" + val.toString() + "'");
+            setError(campoActual, "El valor de '" + campoActual + "' debería ser igual a '" + val.toString() + "'");
         }
 
         return this;
@@ -599,7 +600,7 @@ public class ParamValidator {
         }
 
         if (this.getString(campoActual).equals(val.toString())) {
-            errores.put(campoActual, "El valor de '" + campoActual + "' debería ser distinto de '" + val.toString() + "'");
+            setError(campoActual, "El valor de '" + campoActual + "' debería ser distinto de '" + val.toString() + "'");
         }
 
         return this;
@@ -619,7 +620,7 @@ public class ParamValidator {
             return this;
         }
         if (getString(campoActual).length() < v2) {
-            errores.put(campoActual, "El valor de '" + campoActual + "' debe ser de al menos " + v2 + " caracteres");
+            setError(campoActual, "El valor de '" + campoActual + "' debe ser de al menos " + v2 + " caracteres");
         }
 
         return this;
@@ -639,7 +640,7 @@ public class ParamValidator {
             return this;
         }
         if (getString(campoActual).length() > v2) {
-            errores.put(campoActual, "El valor de '" + campoActual + "' debe ser de " + v2 + " caracteres como máximo");
+            setError(campoActual, "El valor de '" + campoActual + "' debe ser de " + v2 + " caracteres como máximo");
         }
 
         return this;
@@ -658,7 +659,7 @@ public class ParamValidator {
             return this;
         }
         if (getString(campoActual).length() != v2) {
-            errores.put(campoActual, "El valor de '" + campoActual + "' debe ser de " + v2 + " caracteres de largo");
+            setError(campoActual, "El valor de '" + campoActual + "' debe ser de " + v2 + " caracteres de largo");
         }
 
         return this;
@@ -680,11 +681,11 @@ public class ParamValidator {
         try {
             Integer v1 = getInteger(campoActual);
             if (v1 < v2) {
-                errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser menor que " + v2);
+                setError(campoActual, "El valor de '" + campoActual + "' no puede ser menor que " + v2);
             }
         } catch (NumberFormatException ex) {
             logger.error("Error al validar: ", ex);
-            errores.put(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
+            setError(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
         }
 
         return this;
@@ -705,11 +706,11 @@ public class ParamValidator {
         try {
             Integer v1 = getInteger(campoActual);
             if (v1 > v2) {
-                errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser mayor que " + v2);
+                setError(campoActual, "El valor de '" + campoActual + "' no puede ser mayor que " + v2);
             }
         } catch (NumberFormatException ex) {
             logger.error("Error al validar: ", ex);
-            errores.put(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
+            setError(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
         }
 
         return this;
@@ -730,11 +731,11 @@ public class ParamValidator {
         try {
             BigDecimal v1 = getBigDecimal(campoActual);
             if (v1.compareTo(v2) < 0) {
-                errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser menor que " + v2);
+                setError(campoActual, "El valor de '" + campoActual + "' no puede ser menor que " + v2);
             }
         } catch (NumberFormatException ex) {
             logger.error("Error al validar: ", ex);
-            errores.put(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
+            setError(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
         }
 
         return this;
@@ -755,11 +756,11 @@ public class ParamValidator {
         try {
             BigDecimal v1 = getBigDecimal(campoActual);
             if (v1.compareTo(v2) > 0) {
-                errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser mayor que " + v2);
+                setError(campoActual, "El valor de '" + campoActual + "' no puede ser mayor que " + v2);
             }
         } catch (NumberFormatException ex) {
             logger.error("Error al validar: ", ex);
-            errores.put(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
+            setError(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
         }
 
         return this;
@@ -781,11 +782,11 @@ public class ParamValidator {
             Date v1 = getDate(campoActual);
 
             if (v1.before(v2)) {
-                errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser anterior a " + new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(v2) + "");
+                setError(campoActual, "El valor de '" + campoActual + "' no puede ser anterior a " + new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(v2) + "");
             }
         } catch (Exception ex) {
             logger.error("Error al validar: ", ex);
-            errores.put(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
+            setError(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
         }
 
         return this;
@@ -807,11 +808,11 @@ public class ParamValidator {
             Date v1 = getDate(campoActual);
 
             if (v1.after(v2)) {
-                errores.put(campoActual, "El valor de '" + campoActual + "' no puede ser posterior a " + new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(v2) + "");
+                setError(campoActual, "El valor de '" + campoActual + "' no puede ser posterior a " + new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(v2) + "");
             }
         } catch (Exception ex) {
             logger.error("Error al validar: ", ex);
-            errores.put(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
+            setError(campoActual, "Ocurrió un error al validar el parámetro '" + campoActual + "'");
         }
 
         return this;
@@ -831,7 +832,7 @@ public class ParamValidator {
         }
 
         if (obj == null) {
-            errores.put(campoActual, "No se encontró un valor válido para " + campoActual);
+            setError(campoActual, "No se encontró un valor válido para " + campoActual);
         }
 
         return this;
@@ -851,7 +852,7 @@ public class ParamValidator {
         }
 
         if (obj != null) {
-            errores.put(campoActual, "Se encontró un valor no esperado para " + campoActual);
+            setError(campoActual, "Se encontró un valor no esperado para " + campoActual);
         }
 
         return this;
@@ -870,7 +871,7 @@ public class ParamValidator {
         }
 
         if (false == condicion) {
-            errores.put(campoActual, "No se cumple la condición requerida para " + campoActual);
+            setError(campoActual, "No se cumple la condición requerida para " + campoActual);
         }
 
         return this;
@@ -885,7 +886,7 @@ public class ParamValidator {
      */
     public ParamValidator conMensaje(String msg, Object... params) {
         if (errores.get(campoActual) != null && !tieneMensaje) {
-            errores.put(campoActual, String.format(msg, params));
+            setError(campoActual, String.format(msg, params));
             tieneMensaje = true;
         }
 
