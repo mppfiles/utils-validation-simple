@@ -390,6 +390,16 @@ public class ParamValidator {
     public ParamValidator sinNumeros() {
         return cumpleRegex("[^\\d]+");
     }
+    
+    /**
+     * Valida que el valor del parámetro sólo tenga números. 
+     * Útil para validar cadenas de texto numéricas, sin preocuparnos por el rango.
+     *
+     * @return
+     */
+    public ParamValidator soloNumeros() {
+        return cumpleRegex("[\\d]+");
+    }
 
     /**
      * Valida que el valor tenga letras, espacios o números, incluyendo acentos,
