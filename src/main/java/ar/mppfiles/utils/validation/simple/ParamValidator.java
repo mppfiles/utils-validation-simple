@@ -449,6 +449,14 @@ public class ParamValidator {
     public ParamValidator texto() {
         return cumpleRegex("[^<>\"']+");
     }
+    
+    /**
+     * Valida que el valor sea un email correcto (W3C)
+     * @return 
+     */
+    public ParamValidator email() {
+        return cumpleRegex("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$");
+    }
 
     /**
      * Valida que el valor cumpla con el formato de la expresión regular.
