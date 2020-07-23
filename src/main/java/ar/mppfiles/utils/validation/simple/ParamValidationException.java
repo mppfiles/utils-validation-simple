@@ -10,6 +10,10 @@ import java.util.Map;
  */
 public class ParamValidationException extends Exception {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1799015119643836681L;
     protected ParamValidator params;
     
     /**
@@ -41,7 +45,7 @@ public class ParamValidationException extends Exception {
      * Método abreviado para obtener los errores de la instancia.
      * @return 
      */
-    public Map getErrores() {
+    public Map<String, String> getErrores() {
         return params.getErrores();
     }
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,33 +22,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ParamValidator {
 
-    protected Map params;
-    protected Map errores = new HashMap();
+    protected Map<String, Object> params;
+    protected Map<String, String> errores = new HashMap<>();
     private String campoActual = null;
     private boolean tieneMensaje = false;
-    private boolean fueProcesado = false;
     final Logger logger = LoggerFactory.getLogger(ParamValidator.class);
-
-    /**
-     * Inicializa la clase desde una matriz de parámetros. Por ejemplo, para
-     * usar con request.getParameterMap(). La idea es reducir un
-     * Map&lt;String,String[]&gt; a Map&lt;String,String&gt;.
-     *
-     * @param <T>
-     * @param input
-     * @return
-     */
-    public <T extends ParamValidator> T fromMapArray(Map<String, String[]> input) {
-        Map<String, Object> firstParams = new HashMap();
-        input.entrySet().forEach((entry) -> {
-            String[] values = entry.getValue();
-            if (!(values == null || values.length == 0)) {
-                firstParams.put(entry.getKey(), entry.getValue()[0]);
-            }
-        });
-
-        return (T) init(firstParams);
-    }
 
     /**
      * Inicializa la clase desde un Map (clave/valor).
@@ -56,7 +35,8 @@ public class ParamValidator {
      * @param params
      * @return
      */
-    public <T extends ParamValidator> T fromMap(Map params) {
+    @SuppressWarnings("unchecked")
+    public <T extends ParamValidator> T fromMap(Map<String, Object> params) {
         return (T) init(params);
     }
 
@@ -70,17 +50,18 @@ public class ParamValidator {
      * @param params
      * @return
      */
-    protected final <T extends ParamValidator> T init(Map params) {
+    @SuppressWarnings("unchecked")
+    protected final <T extends ParamValidator> T init(Map<String, Object> params) {
         this.params = params;
         clean();
-        this.params = new HashMap(params);
+        this.params = new HashMap<>(params);
 
         return (T) this;
     }
 
     /**
-     * Elimina los parámetros vacíos, asumiendo que nunca fueron enviados.
-     * Facilita los chequeos de null y/o cadenas vacías.
+     * Elimina los parámetros vacíos, asumiendo que nunca fueron enviados. Facilita
+     * los chequeos de null y/o cadenas vacías.
      */
     protected void clean() {
         if (params == null || params.isEmpty()) {
@@ -95,7 +76,7 @@ public class ParamValidator {
      *
      * @return
      */
-    public Map getParams() {
+    public Map<String, Object> getParams() {
         return params;
     }
 
@@ -104,7 +85,7 @@ public class ParamValidator {
      *
      * @return
      */
-    public Map getErrores() {
+    public Map<String, String> getErrores() {
         return errores;
     }
 
@@ -113,7 +94,7 @@ public class ParamValidator {
      *
      * @param param_name
      * @param val
-     * @return 
+     * @return
      */
     public ParamValidator set(String param_name, Object val) {
         params.put(param_name, val);
@@ -144,7 +125,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator setError(String param_name, String message) {
-	fueProcesado = true;
         errores.put(param_name, message);
         return this;
     }
@@ -158,41 +138,15 @@ public class ParamValidator {
     public String getError(String param_name) {
         return (String) errores.get(param_name);
     }
-    
+
     /**
      * Devuelve si el parámetro especificado contiene algún error.
+     * 
      * @param param_name
-     * @return 
+     * @return
      */
     public boolean tieneError(String param_name) {
         return errores.containsKey(param_name);
-    }
-
-    /**
-     * Ejecuta las validaciones definidas en una clase de validación. No lanza
-     * excepciones de validación, sólo setea los errores.
-     *
-     * @param <T>
-     * @return
-     * @throws ar.mppfiles.utils.validation.simple.ParamValidationException
-     */
-    public <T extends ParamValidator> T validate() throws ParamValidationException {
-        try {
-            doValidate();
-        } catch (ParamValidationException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            if (!(ex instanceof ParamValidationException)) {
-                setError("global", "Ha ocurrido un error general. Por favor reintente más tarde.");
-                logger.error("Error al validar: ", ex);
-
-                throw new ParamValidationException(this);
-            }
-        }
-
-        
-
-        return (T) this;
     }
 
     /**
@@ -202,10 +156,6 @@ public class ParamValidator {
      * @throws ar.mppfiles.utils.validation.simple.ParamValidationException
      */
     public boolean isOK() throws ParamValidationException {
-        if (!fueProcesado) {
-            throw new ParamValidationException("No se ejecutó ninguna validación.");
-        }
-
         return errores.isEmpty();
     }
 
@@ -226,7 +176,10 @@ public class ParamValidator {
      * @return
      */
     public Boolean getBoolean(String param_name) {
-        return isEmpty(param_name) ? null : Boolean.valueOf(getString(param_name).toLowerCase(Locale.getDefault())) || (!"false".equals(getString(param_name).toLowerCase(Locale.getDefault())) && getInteger(param_name) == 1);
+        return isEmpty(param_name) ? null
+                : Boolean.valueOf(getString(param_name).toLowerCase(Locale.getDefault()))
+                        || (!"false".equals(getString(param_name).toLowerCase(Locale.getDefault()))
+                                && getInteger(param_name) == 1);
     }
 
     /**
@@ -250,8 +203,7 @@ public class ParamValidator {
     }
 
     /**
-     * Obtiene un parámetro como Date, parseándolo desde formato ISO
-     * (yyyy-mm-dd).
+     * Obtiene un parámetro como Date, parseándolo desde formato ISO (yyyy-mm-dd).
      *
      * @param param_name
      * @return
@@ -261,7 +213,7 @@ public class ParamValidator {
             return null;
         }
 
-        // Si el valor ya fue convertido a Date, se devuelve tal cual, 
+        // Si el valor ya fue convertido a Date, se devuelve tal cual,
         // para evitar doble parseo.
         if (get(param_name) instanceof Date) {
             return (Date) get(param_name);
@@ -289,13 +241,13 @@ public class ParamValidator {
             return null;
         }
 
-        // Si el valor ya fue convertido a Date, se devuelve tal cual, 
+        // Si el valor ya fue convertido a Date, se devuelve tal cual,
         // para evitar doble parseo.
         if (get(param_name) instanceof Date) {
             return (Date) get(param_name);
         }
 
-        //si el dato viene en formato HH:mm solamente, agrego los segundos
+        // si el dato viene en formato HH:mm solamente, agrego los segundos
         String raw = getString(param_name);
         if (raw.length() == 5) {
             raw += ":00";
@@ -322,8 +274,8 @@ public class ParamValidator {
     }
 
     /**
-     * Comprueba que el parámetro NO exista, o bien que no tenga un valor (no es
-     * una validación).
+     * Comprueba que el parámetro NO exista, o bien que no tenga un valor (no es una
+     * validación).
      *
      * @param param_name
      * @return
@@ -361,7 +313,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator requerido() {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null) {
             return this;
@@ -390,10 +341,10 @@ public class ParamValidator {
     public ParamValidator sinNumeros() {
         return cumpleRegex("[^\\d]+");
     }
-    
+
     /**
-     * Valida que el valor del parámetro sólo tenga números. 
-     * Útil para validar cadenas de texto numéricas, sin preocuparnos por el rango.
+     * Valida que el valor del parámetro sólo tenga números. Útil para validar
+     * cadenas de texto numéricas, sin preocuparnos por el rango.
      *
      * @return
      */
@@ -410,10 +361,10 @@ public class ParamValidator {
     public ParamValidator letrasConEspaciosYNumeros() {
         return cumpleRegex("[0-9A-Za-zñÑáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜ' ]+");
     }
-    
+
     /**
-     * Valida que el valor tenga letras o números, incluyendo acentos,
-     * eñes y apóstrofe. No incluye ningún otro signo de puntuación.
+     * Valida que el valor tenga letras o números, incluyendo acentos, eñes y
+     * apóstrofe. No incluye ningún otro signo de puntuación.
      *
      * @return
      */
@@ -422,8 +373,8 @@ public class ParamValidator {
     }
 
     /**
-     * Valida que el valor tenga letras o espacios, teniend en cuenta acentos,
-     * eñes y apóstrofe. No incluye números, ni signos de puntuación.
+     * Valida que el valor tenga letras o espacios, teniend en cuenta acentos, eñes
+     * y apóstrofe. No incluye números, ni signos de puntuación.
      *
      * @return
      */
@@ -449,10 +400,11 @@ public class ParamValidator {
     public ParamValidator texto() {
         return cumpleRegex("[^<>\"']+");
     }
-    
+
     /**
      * Valida que el valor sea un email correcto (W3C)
-     * @return 
+     * 
+     * @return
      */
     public ParamValidator email() {
         return cumpleRegex("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$");
@@ -465,7 +417,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator cumpleRegex(String pattern) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null) {
             return this;
@@ -491,7 +442,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator entero() {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null) {
             return this;
@@ -514,7 +464,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator decimal() {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null) {
             return this;
@@ -537,7 +486,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator fecha() {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null) {
             return this;
@@ -556,7 +504,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator hora() {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null) {
             return this;
@@ -591,7 +538,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator igualA(Object val) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || get(campoActual) == null) {
             return this;
@@ -611,7 +557,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator distintoDe(Object val) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || val == null || get(campoActual) == null) {
             return this;
@@ -625,14 +570,13 @@ public class ParamValidator {
     }
 
     /**
-     * Valida que la longitud del parámetro (como cadena) no sea inferior al
-     * número especificado.
+     * Valida que la longitud del parámetro (como cadena) no sea inferior al número
+     * especificado.
      *
      * @param v2
      * @return
      */
     public ParamValidator minLargo(Integer v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -645,14 +589,13 @@ public class ParamValidator {
     }
 
     /**
-     * Valida que la longitud del parámetro (como cadena) no sea superior al
-     * número especificado.
+     * Valida que la longitud del parámetro (como cadena) no sea superior al número
+     * especificado.
      *
      * @param v2
      * @return
      */
     public ParamValidator maxLargo(Integer v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -663,7 +606,7 @@ public class ParamValidator {
 
         return this;
     }
-    
+
     /**
      * Valida que el largo del campo sea exactamente el especificado.
      *
@@ -671,7 +614,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator largo(Integer v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -683,15 +625,14 @@ public class ParamValidator {
         return this;
     }
 
-
     /**
-     * Valida que el valor del parámetro no sea menor al número especificado (Integer).
+     * Valida que el valor del parámetro no sea menor al número especificado
+     * (Integer).
      *
      * @param v2
      * @return
      */
     public ParamValidator min(Integer v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -710,13 +651,13 @@ public class ParamValidator {
     }
 
     /**
-     * Valida que el valor del parámetro no exceda al número especificado (BigDecimal).
+     * Valida que el valor del parámetro no exceda al número especificado
+     * (BigDecimal).
      *
      * @param v2
      * @return
      */
     public ParamValidator max(Integer v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -733,15 +674,15 @@ public class ParamValidator {
 
         return this;
     }
-    
+
     /**
-     * Valida que el valor del parámetro no sea menor al número especificado (BigDecimal).
+     * Valida que el valor del parámetro no sea menor al número especificado
+     * (BigDecimal).
      *
      * @param v2
      * @return
      */
     public ParamValidator min(BigDecimal v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -766,7 +707,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator max(BigDecimal v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -791,7 +731,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator min(Date v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -800,7 +739,8 @@ public class ParamValidator {
             Date v1 = getDate(campoActual);
 
             if (v1.before(v2)) {
-                setError(campoActual, "El valor de '" + campoActual + "' no puede ser anterior a " + new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(v2) + "");
+                setError(campoActual, "El valor de '" + campoActual + "' no puede ser anterior a "
+                        + new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(v2) + "");
             }
         } catch (Exception ex) {
             logger.error("Error al validar: ", ex);
@@ -817,7 +757,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator max(Date v2) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || v2 == null || get(campoActual) == null) {
             return this;
@@ -826,7 +765,8 @@ public class ParamValidator {
             Date v1 = getDate(campoActual);
 
             if (v1.after(v2)) {
-                setError(campoActual, "El valor de '" + campoActual + "' no puede ser posterior a " + new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(v2) + "");
+                setError(campoActual, "El valor de '" + campoActual + "' no puede ser posterior a "
+                        + new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(v2) + "");
             }
         } catch (Exception ex) {
             logger.error("Error al validar: ", ex);
@@ -843,7 +783,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator existente(Object obj) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || get(campoActual) == null) {
             return this;
@@ -863,7 +802,6 @@ public class ParamValidator {
      * @return
      */
     public ParamValidator inexistente(Object obj) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || get(campoActual) == null) {
             return this;
@@ -875,14 +813,14 @@ public class ParamValidator {
 
         return this;
     }
-    
+
     /**
      * Valida que la expresión booleana sea verdadera.
+     * 
      * @param condicion
-     * @return 
+     * @return
      */
     public ParamValidator cumpleCondicion(boolean condicion) {
-        fueProcesado = true;
 
         if (errores.get(campoActual) != null || get(campoActual) == null) {
             return this;
@@ -914,8 +852,8 @@ public class ParamValidator {
     /**
      * Comprueba el estado de las validaciones, de ser necesario, lanzando una
      * excepción para controlar el flujo del programa. Puede usarse varias veces
-     * durante el proceso de validación, para controlar en qué momento se hacen
-     * los "cortes".
+     * durante el proceso de validación, para controlar en qué momento se hacen los
+     * "cortes".
      *
      * @return
      * @throws ar.mppfiles.utils.validation.simple.ParamValidationException
@@ -925,13 +863,5 @@ public class ParamValidator {
             throw new ParamValidationException(this);
         }
         return this;
-    }
-
-    /**
-     * Define las validaciones aplicadas en la clase.
-     *
-     * @throws Exception
-     */
-    protected void doValidate() throws Exception {
     }
 }
