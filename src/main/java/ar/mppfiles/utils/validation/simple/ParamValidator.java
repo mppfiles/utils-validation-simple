@@ -36,7 +36,7 @@ public class ParamValidator {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T extends ParamValidator> T fromMap(Map<String, Object> params) {
+    public <T extends ParamValidator> T fromMap(Map params) {
         return (T) init(params);
     }
 
@@ -51,7 +51,7 @@ public class ParamValidator {
      * @return
      */
     @SuppressWarnings("unchecked")
-    protected final <T extends ParamValidator> T init(Map<String, Object> params) {
+    protected final <T extends ParamValidator> T init(Map params) {
         this.params = params;
         clean();
         this.params = new HashMap<>(params);
